@@ -14,7 +14,7 @@ terraform {
 data "azurerm_client_config" "current" {}
 
 resource "azurerm_resource_group" "rg" {
-    name = "devSecOps1"
+    name = "devSecOpsrg"
     location = "west us"
 } 
 resource "azurerm_network_security_group" "nsg" {
