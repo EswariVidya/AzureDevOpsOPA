@@ -8,6 +8,7 @@ variables:
   tfBackendStorageContainerName: azureopacontainer
   tfBackendSAAccessKey: UK89oM4VeuQsfmvzN/olUUX+fphl3toRgrbbOUTcWoSJt1jys4310OS7468Dl4P9u4oWEHxVJF4Ox2jRCwpW5Q==
   tfBackendFileName: terraform.tfstate
+  exitCondition: true
 stages:
 - stage: Build
   jobs:
@@ -17,18 +18,51 @@ stages:
           inputs:
             terraformVersion: '0.14.6'
         - script: | 
-                echo "running from build stage"
-                cd $(System.DefaultWorkingDirectory)/Azuredemo
-                terraform init -backend-config="storage_account_name=$(tfBackendStorageAccountName)" -backend-config="container_name=$(tfBackendStorageContainerName)" -backend-config="access_key=$(tfBackendSAAccessKey)" -backend-config="key=$(tfBackendFileName)"
-                terraform plan -var="subscription_id=$(subscription_id)" -var="tenant_id=$(tenant_id)" -var="client_id=$(client_id)" -var="client_secret=$(client_secret)" --out -no-color tfplan.output    
-                curl -L -o opa https://openpolicyagent.org/downloads/latest/opa_linux_amd64
-                chmod 755 opa
-                terraform show -json tfplan.output > tfplancomplete.json
-                sudo apt-get install jq
-                jq -r ".resource_changes | map ({(.address|tostring) : .}) | add" tfplancomplete.json > tfplan.json
-                cat tfplan.json
-                echo "#############     OPA checks         ###############" 
-                ./opa eval --fail-defined --data azurerules.rego --input tfplan.json "data.azurerules.nsg_rule"
+               echo "running from build stage"
+               cd $(System.DefaultWorkingDirectory)/Azuredemo
+               terraform init -backend-config="storage_account_name=$(tfBackendStorageAccountName)" -backend-config="container_name=$(tfBackendStorageContainerName)" -backend-config="access_key=$(tfBackendSAAccessKey)" -backend-config="key=$(tfBackendFileName)"       
+               terraform plan -var="subscription_id=$(subscription_id)" -var="tenant_id=$(tenant_id)" -var="client_id=$(client_id)" -var="client_secret=$(client_secret)" --out -no-color tfplan.output    
+               curl -L -o opa https://openpolicyagent.org/downloads/latest/opa_linux_amd64
+               chmod 755 opa
+               terraform show -json tfplan.output > tfplancomplete.json
+               sudo apt-get install jq
+               jq -r ".resource_changes | map ({(.address|tostring) : .}) | add" tfplancomplete.json > tfplan.json
+               cat tfplan.json
+               echo "#############     OPA checks         ###############" 
+               ./opa eval --fail-defined --data azurerules.rego --input tfplan.json "data.azurerules.nsg_rule" > oparesult.json
+               cat oparesult.json
+        - task: PowerShell@2
+          displayName: OPA - Terraform apply
+          inputs:
+            targetType: 'inline'
+            script: |
+                # Write your PowerShell commands here.
+                $resultvalue = $(./opa eval --fail-defined --data azurerules.rego --input tfplan.json "data.azurerules.nsg_rule" | convertFrom-Json).result.expressions.value
+                Write-Host "result value : $resultvalue"
+                if ($resultvalue -like 'False')
+                {
+                  Write-Host "Terraform will not perform apply"
+                }
+                else
+                {
+                  Write-Host "Terraform apply"
+                  terraform apply "tfplan.output"
+                }
+
+        #- task: TerraformTaskV1@0
+        #  displayName: terraform apply
+         # condition: eq(variables.exitCondition, true)
+         # inputs:
+          #  provider: 'azurerm'
+          #  command: 'apply'
+          #  workingDirectory: '$(System.DefaultWorkingDirectory)/Azuredemo'
+           # backendServiceArm: '$(subscription_id)'
+           # backendAzureRmResourceGroupName: '$(resourceGroup)'
+           # backendAzureRmStorageAccountName: '$(tfBackendStorageAccountName)'
+           # backendAzureRmContainerName: '$(tfBackendStorageContainerName)'
+           # backendAzureRmKey: '$(tfBackendFileName)' 
+           # commandOptions: 'tfplan'
+           # environmentServiceNameAzureRM: '$(subscription_id)'
                 #terraform apply "tfplan.output"
 #- stage: Deploy
 #  dependsOn: Build
