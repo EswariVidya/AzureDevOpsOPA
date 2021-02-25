@@ -3,10 +3,10 @@
 pool: 
     vmImage: 'ubuntu-latest'
 variables:
-  resourceGroup: newResourceGroup
-  tfBackendStorageAccountName: azureopasademo
-  tfBackendStorageContainerName: azureopacontainer
-  tfBackendSAAccessKey: UK89oM4VeuQsfmvzN/olUUX+fphl3toRgrbbOUTcWoSJt1jys4310OS7468Dl4P9u4oWEHxVJF4Ox2jRCwpW5Q==
+  resourceGroup: $StorageResourceGroup
+  tfBackendStorageAccountName: $StorageAccountName
+  tfBackendStorageContainerName: $ContainerName
+  tfBackendSAAccessKey: $storageaccesskey
   tfBackendFileName: terraform.tfstate
   exitCondition: true
 stages:
@@ -49,30 +49,4 @@ stages:
                   terraform apply "tfplan.output"
                 }
 
-        #- task: TerraformTaskV1@0
-        #  displayName: terraform apply
-         # condition: eq(variables.exitCondition, true)
-         # inputs:
-          #  provider: 'azurerm'
-          #  command: 'apply'
-          #  workingDirectory: '$(System.DefaultWorkingDirectory)/Azuredemo'
-           # backendServiceArm: '$(subscription_id)'
-           # backendAzureRmResourceGroupName: '$(resourceGroup)'
-           # backendAzureRmStorageAccountName: '$(tfBackendStorageAccountName)'
-           # backendAzureRmContainerName: '$(tfBackendStorageContainerName)'
-           # backendAzureRmKey: '$(tfBackendFileName)' 
-           # commandOptions: 'tfplan'
-           # environmentServiceNameAzureRM: '$(subscription_id)'
-                #terraform apply "tfplan.output"
-#- stage: Deploy
-#  dependsOn: Build
-#  jobs:
-#  - deployment:
-#    displayName: Dev
-#    environment: Dev
-#    strategy:
-#     runOnce:
-#        deploy: 
-#           steps:
-#             - script: |
-#                  echo "running in deploy"
+       
