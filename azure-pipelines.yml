@@ -17,6 +17,8 @@ stages:
         - task: TerraformInstaller@0
           inputs:
             terraformVersion: '0.14.6'
+        - script:  az login --service-principal -u $(client_id) -p $(client_secret) --tenant $(tenant_id)
+          displayName: "Log Into Azure"
         - script: | 
                echo "running from build stage"
                cd $(System.DefaultWorkingDirectory)/Azuredemo
