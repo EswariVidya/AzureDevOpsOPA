@@ -1,5 +1,5 @@
 provider "azurerm" {
-    version = "~>2.13.0"
+    #version = "~>2.13.0"
     subscription_id = var.subscription_id
     tenant_id = var.tenant_id
     client_id = var.client_id
@@ -13,15 +13,14 @@ terraform {
 
 data "azurerm_client_config" "current" {}
 
-resource "azurerm_resource_group" "rg" {
-    name = "devSecOpsrg"
-    location = "west us"
-} 
+#resource "azurerm_resource_group" "rg" {
+#    name = "devSecOpsrg"
+#    location = "west us"
+#} 
 resource "azurerm_network_security_group" "nsg" {
     name = "myTFNSG"
     location = "west europe"
-    resource_group_name = azurerm_resource_group.rg.name
-
+    resource_group_name = var.resource_groupname
     security_rule {
         name = "SSH"
         priority = 1001
