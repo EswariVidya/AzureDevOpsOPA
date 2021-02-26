@@ -11,7 +11,7 @@ stages:
         - task: TerraformInstaller@0
           inputs:
             terraformVersion: '0.14.6'
-        - script:  az login -u $userlogin_name -p $userlogin_password
+        - script:  az login -u '$userlogin_name' -p '$userlogin_password'
           displayName: "Log Into Azure"
         
         - script: terraform init -backend-config="storage_account_name=$(StorageAccountName)" -backend-config="container_name=$(ContainerName)" -backend-config="access_key=$(storageaccesskey)" -backend-config="key=$(tfBackendFileName)"
