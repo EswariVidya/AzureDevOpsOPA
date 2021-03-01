@@ -19,7 +19,7 @@ data "azurerm_client_config" "current" {}
 #} 
 resource "azurerm_network_security_group" "nsg" {
     name = "myTFNSG"
-    location = "west europe"
+    location = var.location
     resource_group_name = var.resource_groupname
     security_rule {
         name = "SSH"
