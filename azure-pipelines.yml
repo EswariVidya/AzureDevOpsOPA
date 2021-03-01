@@ -11,13 +11,13 @@ stages:
         - task: TerraformInstaller@0
           inputs:
             terraformVersion: '0.14.6'
-        - script:  az login -u '$userlogin_name' -p '$userlogin_password'
+        - script:  az login -u 'e825d233-36c4-f7ef-c22f-feba98df4d7e@Other124.onmicrosoft.com' -p '2SQ#(SzU'
           displayName: "Log Into Azure"
         
         - script: terraform init -backend-config="storage_account_name=$(StorageAccountName)" -backend-config="container_name=$(ContainerName)" -backend-config="access_key=$(storageaccesskey)" -backend-config="key=$(tfBackendFileName)"
           displayName: "Terraform init"
           
-        - script: terraform plan -var="subscription_id=$(subscription_id)" -var="tenant_id=$(tenant_id)" -var="client_id=$client_id" -var="client_secret=$client_secret" --out -no-color tfplan.output     
+        - script: terraform plan -var="subscription_id=$(subscription_id)" -var="tenant_id=$(tenant_id)" -var="client_id=$(client_id)" -var="client_secret=t7.fNUWMIu5.cE03L9N-q4~G0-4tTuxU7x" --out -no-color tfplan.output     
           displayName: "Terraform plan"   
         - task: CmdLine@2
           displayName: "OPA checks"
@@ -30,7 +30,7 @@ stages:
                jq -r ".resource_changes | map ({(.address|tostring) : .}) | add" tfplancomplete.json > tfplan.json
                cat tfplan.json
                echo "#############     OPA checks         ###############" 
-               ./opa eval --fail-defined --data azurerules.rego --input tfplan.json "data.azurerules.nsg_rule" > oparesult.json
+               ./opa eval --fail-defined --data azurerules.rego --input tfplan.json "data.azurerules.storage_account_https" > oparesult.json
                cat oparesult.json
         - task: PowerShell@2
           displayName: OPA - Terraform apply
@@ -38,13 +38,15 @@ stages:
             targetType: 'inline'
             script: |
                 # Write your PowerShell commands here.
-                $resultvalue = $(./opa eval --fail-defined --data azurerules.rego --input tfplan.json "data.azurerules.nsg_rule" | convertFrom-Json).result.expressions.value
+                $OPAresult = $(./opa eval --fail-defined --data azurerules.rego --input tfplan.json "data.azurerules.storage_account_https" | convertFrom-Json)
+                $resultvalue = $OPAresult.result.expressions.value
+                $rule = $OPAresult.result.expressions.text
                 $plan = $(terraform show -json tfplan.output | ConvertFrom-Json)
                 $actions = $plan.resource_changes.change.actions
                 Write-Host "OPA result value : $resultvalue"
                 if (($resultvalue -like 'False') || ($actions -contains 'no-op')) 
                 {
-                  Write-Host "Terraform will not perform apply - OPA check failed  or There is no change in tfplan(resource already present)"
+                  Write-Host "OPA check failed for $rule or There is no change in tfplan(resource already present)"
                 }
                 else
                 {
