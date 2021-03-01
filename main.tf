@@ -34,3 +34,16 @@ resource "azurerm_network_security_group" "nsg" {
 
     }
 }
+
+resource "azurerm_storage_account" "teststorageaccount1" {
+  name                      = "devsecopsstorageaccount"
+  resource_group_name       = var.resource_group_name
+  location                  = var.location
+  account_tier              = "Standard"
+  account_replication_type  = "LRS"
+  enable_https_traffic_only = false
+
+  network_rules {
+    default_action          = "Deny"
+  }
+}
