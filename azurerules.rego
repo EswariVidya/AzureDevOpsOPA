@@ -19,16 +19,6 @@ nsg_inbound_22[resource_name] {
     nsg_rules1.change.after.security_rule[_].direction == "Inbound"
 }
 
-storage_account = false {
-    count(storage_account_access) != 0
-}
-storage_account_access[resource_name] {
-    sa_access := tfplan[_]
-    resource_name := sa_access.address
-    sa_access.type == "azurerm_storage_account"
-    sa_access.change.after.network_rules[_].default_action == "Allow"
-}
-
 storage_account_https = false {
     count(sa_https) != 0
 }
