@@ -11,13 +11,13 @@ stages:
         - task: TerraformInstaller@0
           inputs:
             terraformVersion: '0.14.6'
-        - script:  az login -u 'e825d233-36c4-f7ef-c22f-feba98df4d7e@Other124.onmicrosoft.com' -p '2SQ#(SzU'
-          displayName: "Log Into Azure"
+        #- script:  az login -u 'e825d233-36c4-f7ef-c22f-feba98df4d7e@Other124.onmicrosoft.com' -p '2SQ#(SzU'
+        #  displayName: "Log Into Azure"
         
         - script: terraform init -backend-config="storage_account_name=$(StorageAccountName)" -backend-config="container_name=$(ContainerName)" -backend-config="access_key=$(storageaccesskey)" -backend-config="key=$(tfBackendFileName)"
           displayName: "Terraform init"
           
-        - script: terraform plan -var="subscription_id=$(subscription_id)" -var="tenant_id=$(tenant_id)" -var="client_id=$(client_id)" -var="client_secret=t7.fNUWMIu5.cE03L9N-q4~G0-4tTuxU7x" --out -no-color tfplan.output     
+        - script: terraform plan -var="subscription_id=$(subscription_id)" -var="tenant_id=$(tenant_id)" -var="client_id=$(client_id)" -var="client_secret=$(client_secret)" --out -no-color tfplan.output     
           displayName: "Terraform plan"   
         - task: CmdLine@2
           displayName: "OPA checks"
