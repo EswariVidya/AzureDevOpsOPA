@@ -39,10 +39,12 @@ stages:
             script: |
                 # Write your PowerShell commands here.
                 $resultvalue = $(./opa eval --fail-defined --data azurerules.rego --input tfplan.json "data.azurerules.nsg_rule" | convertFrom-Json).result.expressions.value
-                Write-Host "result value : $resultvalue"
-                if ($resultvalue -like 'False')
+                $plan = $(terraform show -json tfplan.output | ConvertFrom-Json)
+                $actions = $plan.resource_changes.change.actions
+                Write-Host "OPA result value : $resultvalue"
+                if (($resultvalue -like 'False') || ($actions -contains 'no-op')) 
                 {
-                  Write-Host "Terraform will not perform apply"
+                  Write-Host "Terraform will not perform apply - OPA check failed  or There is no change in tfplan(resource already present)"
                 }
                 else
                 {
