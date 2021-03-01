@@ -28,3 +28,13 @@ storage_account_access[resource_name] {
     sa_access.type == "azurerm_storage_account"
     sa_access.change.after.network_rules[_].default_action == "Allow"
 }
+
+storage_account_https = false {
+    count(sa_https) != 0
+}
+sa_https[resource_name] {
+    sa_https_access := tfplan[_]
+    resource_name := sa_https_access.address
+    sa_https_access.type == "azurerm_storage_account"
+    sa_https_access.change.after.enable_https_traffic_only == false
+}
