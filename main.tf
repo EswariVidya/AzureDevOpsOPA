@@ -13,6 +13,10 @@ terraform {
 
 data "azurerm_client_config" "current" {}
 
+data "azurerm_resources" "resource_group" {
+  type = "Microsoft.Resources/subscriptions/resourceGroups/*"
+} 
+
 #resource "azurerm_network_security_group" "nsg" {
 #    name = "myTFNSG"
 #    location = var.location
@@ -33,7 +37,7 @@ data "azurerm_client_config" "current" {}
 
 resource "azurerm_storage_account" "teststorageaccount1" {
   name                      = "devsecopsstorageaccount"
-  resource_group_name       = var.resource_groupname
+  resource_group_name       = data.azurerm_resources.resource_group.resources[count.index].name
   location                  = var.location
   account_tier              = "Standard"
   account_replication_type  = "LRS"
