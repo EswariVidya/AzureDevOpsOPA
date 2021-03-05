@@ -28,3 +28,12 @@ sa_https[resource_name] {
     sa_https_access.type == "azurerm_storage_account"
     sa_https_access.change.after.enable_https_traffic_only == false
 }
+storage_container_access = false {
+    count(sc_type) != 0
+}
+sc_type[resource_name] {
+    sc_type_access := tfplan[_]
+    resource_name := sc_type_access.address
+    sc_type_access.type == "azurerm_storage_container"
+    sc_type_access.change.after.container_access_type != "private"
+}
