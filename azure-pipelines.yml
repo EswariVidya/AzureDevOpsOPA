@@ -17,7 +17,7 @@ stages:
         - script: terraform init -backend-config="storage_account_name=$(StorageAccountName)" -backend-config="container_name=$(ContainerName)" -backend-config="access_key=$(storageaccesskey)" -backend-config="key=$(tfBackendFileName)"
           displayName: "Terraform init"
           
-        - script: terraform plan -var="subscription_id=$(subscription_id)" -var="tenant_id=$(tenant_id)" -var="client_id=$(client_id)" -var="client_secret=$(client_secret)" --out -no-color tfplan.output     
+        - script: terraform plan -var="subscription_id=$(subscription_id)" -var="tenant_id=$(tenant_id)" -var="client_id=$(client_id)" -var="client_secret=$(client_secret)" -var="resource_gp_name=$(StorageResourceGroup)" --out -no-color tfplan.output     
           displayName: "Terraform plan"   
         - task: CmdLine@2
           displayName: "OPA checks"
