@@ -20,7 +20,7 @@ data "azurerm_client_config" "current" {}
 #resource "azurerm_network_security_group" "nsg" {
 #    name = "myTFNSG"
 #    location = var.location
-#    resource_group_name = var.resource_groupname
+#    resource_group_name = var.resource_gp_name
  #   security_rule {
  #       name = "SSH"
  #       priority = 1001
@@ -37,7 +37,7 @@ data "azurerm_client_config" "current" {}
 
 resource "azurerm_storage_account" "teststorageaccount1" {
   name                      = "devsecopsstorageaccount"
-  resource_group_name       = var.resource_gp
+  resource_group_name       = var.resource_gp_name
   location                  = var.location
   account_tier              = "Standard"
   account_replication_type  = "LRS"
