@@ -43,13 +43,13 @@ stages:
                 $rule = $OPAresult.result.expressions.text
                 $plan = $(terraform show -json tfplan.output | ConvertFrom-Json)
                 $actions = $plan.resource_changes.change.actions
-                Write-Host "OPA result value : $resultvalue"
-                 if (($resultvalue -NotLike 'False') -And (($actions -contains 'create') -or ($actions -contains 'update')))
+                if (($resultvalue -NotLike 'False') -And (($actions -contains 'create') -or ($actions -contains 'update')))
                 {
                   Write-Host "Terraform will perform the following actions: $actions"
                   terraform apply "tfplan.output"
                 }
                 else
                 {
-                  Write-Host "OPA check failed for $rule or There is no change in tfplan(resource already present)"
+                  Write-Host "OPA result value : $resultvalue"
+                  Write-Host "OPA check failed or There is no change in tfplan(resource already present) $actions"
                 }
