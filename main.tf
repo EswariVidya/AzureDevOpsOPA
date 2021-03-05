@@ -47,3 +47,9 @@ resource "azurerm_storage_account" "teststorageaccount1" {
     default_action          = "Deny"
   }
 }
+
+#resource "azurerm_storage_container" "testcontainer" {
+#  name                    = "decsecopsstoragecontainer"
+#  storage_account_name    = azurerm_storage_account.teststorageaccount1.name
+#  container_access_type   = "private"
+#}
