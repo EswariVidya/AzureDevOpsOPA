@@ -28,7 +28,6 @@ stages:
             backendAzureRmContainerName: '$(ContainerName)'
             backendAzureRmKey: 'terraform.tfstate'
             
-        #- script: terraform force-unlock -force 2c130d25-322a-645d-41bd-e21a2b8dd48b
         - task: TerraformTaskV1@0
           inputs:
             provider: 'azurerm'
